@@ -122,3 +122,30 @@ This extraction and processing pipeline ensures that the dataset is formatted an
 3. Output Verification:
 - The processed dataset, now with input_features, labels, and input_length, is printed to confirm the structure.
 - Optional checks are done to ensure consistency in the shapes of input features and labels.
+
+### Whisper Model Building and Metrics
+These steps finalize the Whisper model setup for ASR, using a robust set of metrics to evaluate model performance on both word and sentence levels, enhancing its adaptability and accuracy for real-world applications.
+#### Custom Data Collator for Sequence-to-Sequence with Padding
+1. Data Collator: A custom data collator, DataCollatorSpeechSeq2SeqWithPadding, is defined to handle batch processing for speech-to-text tasks.
+2. Functionality:
+- Pads audio features and text labels to ensure uniform sequence lengths within batches.
+- Masks padding tokens with -100, which is ignored in the loss calculation, allowing the model to focus on actual transcriptions.
+- Removes the beginning-of-sequence (BOS) token if present at the start of all sequences.
+
+This collator helps manage variable-length audio and text sequences, making batch processing efficient and preparing data for model input.
+
+#### Metrics
+1. WER (Word Error Rate): A primary metric for ASR models, WER measures the percentage of words incorrectly predicted by comparing predictions with ground truth.
+2. BLEU (Bilingual Evaluation Understudy Score): Calculates BLEU scores to evaluate the quality of generated text against references. Sentence-level BLEU scores are averaged across the dataset.
+3. ROUGE (Recall-Oriented Understudy for Gisting Evaluation): Measures overlap of n-grams, specifically ROUGE-1 for unigram comparisons, assessing precision, recall, and F-score.
+4. CER (Character Error Rate): Measures the proportion of character errors, useful for fine-grained error detection.
+5. SER (Sentence Error Rate): Calculates the percentage of sentences that are entirely incorrect, indicating overall sentence-level accuracy.
+6. F1 Score and R2 Score: The F1 score evaluates prediction accuracy for binary labels, while the R2 score measures correlation between predictions and true labels.
+7. Accuracy: Computes the overall accuracy of predicted vs. reference transcriptions.
+8. BLEU and ROUGE Scores: Additional metrics for evaluating sequence similarity, useful for fine-grained transcription evaluation.
+
+The compute_metrics function combines these metrics, applying normalization and padding adjustments to ensure consistency and accuracy in evaluation.
+
+#### Model Definition and Configuration
+- Model Caching: The Whisper model configuration disables cache usage during training but re-enables it during generation to optimize memory and performance.
+- Task-Specific Configuration: The model’s generate function is partially configured for English transcription tasks, with settings to improve inference efficiency and reduce computational load.
